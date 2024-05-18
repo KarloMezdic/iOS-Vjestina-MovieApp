@@ -10,7 +10,7 @@ import PureLayout
 import MovieAppData
 import UIKit
 
-class MovieCategorysViewController : UIViewController{
+class MovieCategoriesViewController : UIViewController{
 
     
     private var tableView : UITableView!
@@ -65,7 +65,7 @@ class MovieCategorysViewController : UIViewController{
     }
 }
 
-extension MovieCategorysViewController : UITableViewDelegate, UITableViewDataSource{
+extension MovieCategoriesViewController : UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
@@ -101,7 +101,7 @@ extension MovieCategorysViewController : UITableViewDelegate, UITableViewDataSou
     }
 }
 
-extension MovieCategorysViewController : UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+extension MovieCategoriesViewController : UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
