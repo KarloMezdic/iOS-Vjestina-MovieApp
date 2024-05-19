@@ -82,9 +82,4 @@ class LoginViewController : UIViewController{
         
         
     }
-    @objc private func loginTapped(){
-        let AppView=MovieDetailsViewController()
-        present(AppView,animated: true, completion: nil)
-    }
-    
 }

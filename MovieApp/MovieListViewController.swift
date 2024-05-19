@@ -11,9 +11,21 @@ class MovieListViewController : UIViewController{
     
     private let movieUseCase = MovieUseCase()
     
+    private var router : Router!
+    
+    
+    init(router: Router!){
+        self.router = router
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Movie List"
         view.backgroundColor = .white
         
         buildView()
@@ -69,7 +81,18 @@ extension MovieListViewController : UICollectionViewDataSource, UICollectionView
          
         cell.img.load(url: imageUrl)
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imgTap(_:)))
+        cell.img.isUserInteractionEnabled = true
+        cell.img.addGestureRecognizer(tapGesture)
+        cell.img.tag = moviedetails.id
+        
         return cell
+    }
+    
+    @objc func imgTap(_ sender: UITapGestureRecognizer){
+        guard let imageView = sender.view as? UIImageView else { return }
+        let movId = imageView.tag
+        router.showMovieDetails(id: movId)
     }
 }
 

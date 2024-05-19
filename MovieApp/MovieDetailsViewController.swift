@@ -17,7 +17,7 @@ class MovieDetailsViewController : UIViewController {
 
     var score : UILabel!
     var movName : UILabel!
-    var summ : UITextView!
+    var summ : UILabel!
     var relDate : UILabel!
     var overview : UILabel!
     var genre : UILabel!
@@ -28,14 +28,31 @@ class MovieDetailsViewController : UIViewController {
     var act3 : UILabel!
     var act4 : UILabel!
     var act5 : UILabel!
+    var appearance : UINavigationBarAppearance!
     
+    private var router: Router!
+    private var id : Int!
     
     let bounds = UIScreen.main.bounds
     
+    init(router:Router!, id: Int!){
+        self.router = router
+        self.id = id
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        //tableView.dataSource = self
-        view.backgroundColor = .gray
+        title = "Movie Details"
+        view.backgroundColor = .white
+        let appearance = UINavigationBarAppearance()
+        appearance.backgroundColor = .black
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
+        appearance.titleTextAttributes = [.backgroundColor: UIColor.white]
         buildView()
         
     }
@@ -63,16 +80,17 @@ class MovieDetailsViewController : UIViewController {
         stackView.addArrangedSubview(view3)
         view3.backgroundColor = .white
         view3.autoPinEdge(.top, to: .bottom, of: view2)
+        view3.alpha = 0
         
         stackView.axis = .vertical
         stackView.alignment = .fill
         stackView.distribution = .fillEqually
         
         view.addSubview(stackView)
-        stackView.autoPinEdgesToSuperviewEdges()
+        stackView.autoPinEdgesToSuperviewSafeArea()
         
-        let details = MovieUseCase().getDetails(id: 111161)
-        //print(details)
+        let details = MovieUseCase().getDetails(id: id)
+    
         
         guard let name = details?.name else {
             return
@@ -102,17 +120,13 @@ class MovieDetailsViewController : UIViewController {
             return
         }
     
-        let movieImg=UIImageView()
+        let movieImg = UIImageView()
         movieImg.contentMode = .scaleAspectFill
         movieImg.clipsToBounds = true
-        if let url = URL(string: imageUrl),
-           let data = try? Data(contentsOf: url),
-           let image=UIImage(data: data){
-            movieImg.image=image
-        }
+        movieImg.load(url: URL(string: imageUrl)!)
         view1.addSubview(movieImg)
         movieImg.autoPinEdgesToSuperviewEdges()
-        
+    
         
         movName=UILabel()
         view1.addSubview(movName)
@@ -122,6 +136,7 @@ class MovieDetailsViewController : UIViewController {
         movName.autoPinEdge(.bottom, to: .bottom, of: view1, withOffset: -60)
         movName.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
         movName.autoSetDimensions(to: .init(width: bounds.width, height: 30))
+        animateText(label: movName)
         
         score = UILabel()
         view1.addSubview(score)
@@ -132,6 +147,7 @@ class MovieDetailsViewController : UIViewController {
         //score.autoAlignAxis(.horizontal, toSameAxisOf: view1, withOffset: -15)
         score.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
         score.autoSetDimensions(to: .init(width: bounds.width, height: 30))
+        animateText(label: score)
         
         relDate=UILabel()
         view1.addSubview(relDate)
@@ -141,6 +157,7 @@ class MovieDetailsViewController : UIViewController {
         relDate.autoPinEdge(.bottom, to: .bottom, of: view1, withOffset: -35)
         relDate.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
         relDate.autoSetDimensions(to: .init(width: bounds.width, height: 17))
+        animateText(label: relDate)
         
         genre = UILabel()
         view1.addSubview(genre)
@@ -159,8 +176,9 @@ class MovieDetailsViewController : UIViewController {
         genre.autoPinEdge(.bottom, to: .bottom, of: view1, withOffset: -10)
         genre.autoSetDimensions(to: .init(width: bounds.width/2, height: 17))
         genre.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
+        animateText(label: genre)
         
-        
+                
         overview = UILabel()
         view2.addSubview(overview)
         overview.textColor = .black
@@ -171,16 +189,21 @@ class MovieDetailsViewController : UIViewController {
         overview.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
         overview.autoSetDimensions(to: .init(width: bounds.width, height: 50))
 
-        summ=UITextView()
+        summ=UILabel()
         view2.addSubview(summ)
         summ.text = summaryvar
         summ.textColor = .black
         summ.font = UIFont.systemFont(ofSize: 18)
         summ.backgroundColor = .white
+        summ.lineBreakMode = .byWordWrapping
+        summ.numberOfLines = 0
         summ.autoPinEdge(.top, to: .bottom, of: overview, withOffset: 5)
         summ.autoPinEdge(toSuperviewSafeArea: .leading, withInset: 20)
         summ.autoSetDimensions(to: .init(width: bounds.width-50, height: 200))
-        summ.isEditable = false
+        animateTextLast(label: summ, completion: {
+            self.animateView(view: view3)
+        })
+        
         
         act1 = UILabel()
         view3.addSubview(act1)
@@ -214,7 +237,7 @@ class MovieDetailsViewController : UIViewController {
         act3.autoPinEdge(.leading , to: .trailing , of: act2, withOffset: 5)
         act3.autoPinEdge(.top , to: .top , of: view3, withOffset: 10)
         act3.autoSetDimensions(to: .init(width: (bounds.width-60)/3, height: 40))
-        
+            
         act4 = UILabel()
         view3.addSubview(act4)
         act4.lineBreakMode = .byWordWrapping
@@ -236,9 +259,31 @@ class MovieDetailsViewController : UIViewController {
         act5.autoPinEdge(.leading , to: .trailing , of: act4, withOffset: 5)
         act5.autoPinEdge(.top, to: .bottom, of: act2, withOffset: 40)
         act5.autoSetDimensions(to: .init(width: (bounds.width-60)/3, height: 40))
-        
+            
+    }
+    
+    
+    private func animateView(view:UIView!){
+        view.alpha = 0
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            view.alpha = 1
+        }, completion: nil)
         
     }
     
-                                                        
+    private func animateText(label : UILabel!){
+        label.transform = CGAffineTransform(translationX: -self.view.frame.width, y: 0)
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut, animations: {
+            label.transform = .identity
+        }, completion: nil)
+    }
+    
+    private func animateTextLast(label:UILabel!, completion: @escaping ()-> Void){
+        label.transform = CGAffineTransform(translationX: -self.view.frame.width, y: 0)
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut, animations: {
+            label.transform = .identity
+        }, completion: { _ in
+                completion()})
+    }
+
 }

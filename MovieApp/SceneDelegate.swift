@@ -13,11 +13,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowsScene = (scene as? UIWindowScene) else { return }
         
-        window=UIWindow(windowScene: windowScene)
-        let vc=MovieCategorysViewController()
-        window?.rootViewController=vc
+        let tabBarController = UITabBarController()
+                
+        let navigationController1 = UINavigationController()
+        let router1 = Router(navigationController: navigationController1)
+        let movieCategoriesVC = MovieCategoriesViewController(router: router1)
+        navigationController1.navigationBar.tintColor = .black
+        movieCategoriesVC.tabBarItem = UITabBarItem(title: "Movie List", image: UIImage(systemName: "house"), selectedImage: nil)
+        navigationController1.viewControllers = [movieCategoriesVC]
+    
+        let navigationController2 = UINavigationController()
+        let router2 = Router(navigationController: navigationController2)
+        let favoritesVC = FavoritesViewController(router: router2)
+        navigationController2.navigationBar.tintColor = .black
+        favoritesVC.tabBarItem = UITabBarItem(title: "Favorites", image: UIImage(systemName: "heart"), selectedImage: nil)
+        navigationController2.viewControllers = [favoritesVC]
+                
+        tabBarController.viewControllers = [navigationController1, navigationController2]
+        
+        window = UIWindow(windowScene: windowsScene)
+        
+        window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
     }
 

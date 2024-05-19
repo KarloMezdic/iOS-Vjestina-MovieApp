@@ -19,10 +19,21 @@ class MovieCategoriesViewController : UIViewController{
     private var whatsPopular : [MovieModel] = []
     private var freeToWatch : [MovieModel] = []
     private var trending : [MovieModel] = []
+    private let router : Router!
+    
+    init(router : Router!){
+        self.router = router
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         super.loadView()
-
+        title = "Movie List"
+        view.backgroundColor = .white
         buildView()
         styleView()
         loadCategorys()
@@ -142,6 +153,11 @@ extension MovieCategoriesViewController : UICollectionViewDelegate, UICollection
         movImage.load(url: URL(string: movie.imageUrl)!)
         movImage.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(_:)))
+        collectionCell.image.isUserInteractionEnabled = true
+        collectionCell.image.addGestureRecognizer(tapGestureRecognizer)
+        collectionCell.image.tag = movie.id
+        
         collectionCell.addSubview(movImage)
         collectionCell.layer.cornerRadius = 10
         collectionCell.layer.masksToBounds = true
@@ -149,6 +165,13 @@ extension MovieCategoriesViewController : UICollectionViewDelegate, UICollection
         collectionCell.addSubview(collectionCell.heartButton)
         
         return collectionCell
+        
+    }
+    
+    @objc func imageTapped(_ sender: UITapGestureRecognizer){
+        guard let imageView = sender.view as? UIImageView else { return }
+        let movId = imageView.tag
+        router.showMovieDetails(id: movId)
         
     }
     
