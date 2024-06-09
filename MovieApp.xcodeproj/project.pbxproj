@@ -76,6 +76,7 @@
 		F824E78D2C12E64D00ECB613 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				F8C3D0112C12EEDF007FD4C7 /* ApiCall.swift */,
 				F8310EC52BC4853E0055C7F4 /* SceneDelegate.swift */,
 				F8310EC32BC4853E0055C7F4 /* AppDelegate.swift */,
 			);
@@ -190,7 +191,6 @@
 				F824E78F2C12E6A300ECB613 /* Infrastructure */,
 				F824E78E2C12E68100ECB613 /* Resources */,
 				F824E78C2C12E63300ECB613 /* Core */,
-				F8C3D0112C12EEDF007FD4C7 /* ApiCall.swift */,
 			);
 			path = MovieApp;
 			sourceTree = "<group>";

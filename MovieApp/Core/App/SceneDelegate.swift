@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
         let navigationController1 = UINavigationController()
         let router1 = Router(navigationController: navigationController1)
-        let movieCategoriesVC = MovieListViewController(router: router1)
+        let movieCategoriesVC = MovieCategoriesViewController(router: router1)
         navigationController1.navigationBar.tintColor = .black
         movieCategoriesVC.tabBarItem = UITabBarItem(title: "Movie List", image: UIImage(systemName: "house"), selectedImage: nil)
         navigationController1.viewControllers = [movieCategoriesVC]
