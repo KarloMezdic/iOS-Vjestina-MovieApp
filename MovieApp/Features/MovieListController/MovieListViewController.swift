@@ -9,7 +9,9 @@ class MovieListViewController : UIViewController{
     
     private var collectionViewFirst : UICollectionView!
     
-    private let movieUseCase = MovieUseCase()
+    private let apiCall = ApiCall()
+    
+    private var movies : [ApiCall.MovieResp] = []
     
     private var router : Router!
     
@@ -27,7 +29,7 @@ class MovieListViewController : UIViewController{
         super.viewDidLoad()
         title = "Movie List"
         view.backgroundColor = .white
-        
+        fetchMovies()
         buildView()
         defineLayout()
         
@@ -58,12 +60,22 @@ class MovieListViewController : UIViewController{
         view.addSubview(collectionViewFirst)
         
     }
+    
+    func fetchMovies() {
+        Task {
+            await apiCall.getAll()
+            self.movies = apiCall.movies
+            DispatchQueue.main.async {
+                self.collectionViewFirst.reloadData()
+            }
+        }
+    }
 }
 
 extension MovieListViewController : UICollectionViewDataSource, UICollectionViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return movieUseCase.allMovies.count
+        return movies.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -72,19 +84,19 @@ extension MovieListViewController : UICollectionViewDataSource, UICollectionView
             fatalError("Err")
         }
         
-        let moviedetails = movieUseCase.allMovies[indexPath.item]
+        let moviedetails = movies[indexPath.item]
         
         cell.name.text = moviedetails.name
         cell.summary.text = moviedetails.summary
         
-        let imageUrl = URL(string: moviedetails.imageUrl)!
+        let imageUrl = URL(string: moviedetails.imageUrl!)!
          
         cell.img.load(url: imageUrl)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imgTap(_:)))
         cell.img.isUserInteractionEnabled = true
         cell.img.addGestureRecognizer(tapGesture)
-        cell.img.tag = moviedetails.id
+        cell.img.tag = moviedetails.id!
         
         return cell
     }

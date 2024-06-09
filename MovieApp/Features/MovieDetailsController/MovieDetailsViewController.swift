@@ -34,6 +34,8 @@ class MovieDetailsViewController : UIViewController {
     private var id : Int!
     
     let bounds = UIScreen.main.bounds
+    let apiCall = ApiCall()
+    var details : ApiCall.MovieRespDetails!
     
     init(router:Router!, id: Int!){
         self.router = router
@@ -45,24 +47,41 @@ class MovieDetailsViewController : UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func loadDetails() {
+        Task {
+            await apiCall.getDetail(with: id)
+            DispatchQueue.main.async {
+                self.details = self.apiCall.detail
+                self.buildView()
+            }
+        }
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        loadDetails()
+    }
+        
+    func setupUI() {
         title = "Movie Details"
         view.backgroundColor = .white
         let appearance = UINavigationBarAppearance()
-        appearance.backgroundColor = .black
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        appearance.titleTextAttributes = [.backgroundColor: UIColor.white]
-        buildView()
-        
-    }
-    func elements(array: [MovieCrewMemberModel]) -> Int{
-        return array.count
+        appearance.backgroundColor = .white
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
     }
     
+    
     func buildView(){
-        
-        
+    
+        guard let detail = details else{
+            print("Details is nil")
+            return
+        }
+        print(detail)
         let stackView = UIStackView()
         
         let view1 = UIView()
@@ -89,37 +108,35 @@ class MovieDetailsViewController : UIViewController {
         view.addSubview(stackView)
         stackView.autoPinEdgesToSuperviewSafeArea()
         
-        let details = MovieUseCase().getDetails(id: id)
-    
-        
-        guard let name = details?.name else {
-            return
-        }
-        guard let summaryvar = details?.summary else{
-            return
-        }
-        guard let imageUrl = details?.imageUrl else{
-            return
-        }
-        guard let releaseDate = details?.releaseDate else{
-            return
-        }
-        guard let year = details?.year else{
-            return
-        }
-        guard let duration = details?.duration else{
-            return
-        }
-        guard let rating = details?.rating else{
-            return
-        }
-        guard let crewMembers = details?.crewMembers else{
-            return
-        }
-        guard let genretype = details?.categories else{
+
+        guard let name = detail.name else {
             return
         }
     
+        guard let summaryvar = detail.summary else{
+            return
+        }
+        guard let imageUrl = detail.imageUrl else{
+            return
+        }
+        if detail.relDate == nil{
+            let releaseDate=""
+        }
+        else{
+            let releaseDate = detail.relDate
+        }
+        guard let year = detail.year else{
+            return
+        }
+        guard let duration = detail.duration else{
+            return
+        }
+        guard let rating = detail.rating else{
+            return
+        }
+        guard let crewMembers = detail.crewMembers else{
+            return
+        }
         let movieImg = UIImageView()
         movieImg.contentMode = .scaleAspectFill
         movieImg.clipsToBounds = true
@@ -151,7 +168,7 @@ class MovieDetailsViewController : UIViewController {
         
         relDate=UILabel()
         view1.addSubview(relDate)
-        relDate.text = String(releaseDate)
+        //relDate.text = String(releaseDate)
         relDate.font = UIFont.systemFont(ofSize: 15)
         relDate.textColor = .white
         relDate.autoPinEdge(.bottom, to: .bottom, of: view1, withOffset: -35)
@@ -163,12 +180,7 @@ class MovieDetailsViewController : UIViewController {
         view1.addSubview(genre)
         
         var str : String!
-        if genretype.isEmpty{
-            str="No Genre"
-        }
-        else{
-            str = "Drama"
-        }
+        str = "Drama"
         str+=" / " + String(duration)+" min"
         genre.text = str
         genre.font = UIFont.boldSystemFont(ofSize: 15)
@@ -261,7 +273,6 @@ class MovieDetailsViewController : UIViewController {
         act5.autoSetDimensions(to: .init(width: (bounds.width-60)/3, height: 40))
             
     }
-    
     
     private func animateView(view:UIView!){
         view.alpha = 0

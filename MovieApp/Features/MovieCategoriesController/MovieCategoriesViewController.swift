@@ -12,13 +12,12 @@ import UIKit
 
 class MovieCategoriesViewController : UIViewController{
 
-    
+    private let apiCall = ApiCall()
     private var tableView : UITableView!
     private var collectionView : UICollectionView!
-    private var movieUseCase : MovieUseCaseProtocol!
-    private var whatsPopular : [MovieModel] = []
-    private var freeToWatch : [MovieModel] = []
-    private var trending : [MovieModel] = []
+    private var whatsPopular : [ApiCall.MovieResp] = []
+    private var freeToWatch : [ApiCall.MovieResp] = []
+    private var trending : [ApiCall.MovieResp] = []
     private let router : Router!
     
     init(router : Router!){
@@ -36,7 +35,7 @@ class MovieCategoriesViewController : UIViewController{
         view.backgroundColor = .white
         buildView()
         styleView()
-        loadCategorys()
+        loadCategories()
     }
     
     func buildView(){
@@ -67,12 +66,18 @@ class MovieCategoriesViewController : UIViewController{
         tableView.autoPinEdge(toSuperviewSafeArea: .trailing)
     }
     
-    func loadCategorys(){
-        movieUseCase = MovieUseCase()
-        whatsPopular = movieUseCase.popularMovies
-        trending = movieUseCase.trendingMovies
-        freeToWatch = movieUseCase.freeToWatchMovies
-        tableView.reloadData()
+    func loadCategories() {
+        Task {
+            do {
+                await apiCall.getAll()
+                self.whatsPopular = apiCall.popular
+                self.trending = apiCall.trending
+                self.freeToWatch = apiCall.freeToWatch
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
     }
 }
 
@@ -132,7 +137,7 @@ extension MovieCategoriesViewController : UICollectionViewDelegate, UICollection
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as! CollectionCell
             
-        var movieList: [MovieModel] = []
+        var movieList: [ApiCall.MovieResp] = []
         
         switch collectionView.tag {
         case 0:
@@ -150,13 +155,13 @@ extension MovieCategoriesViewController : UICollectionViewDelegate, UICollection
         let movImage = UIImageView(frame: collectionCell.contentView.bounds)
         movImage.contentMode = .scaleAspectFill
         movImage.layer.cornerRadius = 10
-        movImage.load(url: URL(string: movie.imageUrl)!)
+        movImage.load(url: URL(string: movie.imageUrl ?? "")!)
         movImage.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(_:)))
         collectionCell.image.isUserInteractionEnabled = true
         collectionCell.image.addGestureRecognizer(tapGestureRecognizer)
-        collectionCell.image.tag = movie.id
+        collectionCell.image.tag = movie.id ?? 0
         
         collectionCell.addSubview(movImage)
         collectionCell.layer.cornerRadius = 10
